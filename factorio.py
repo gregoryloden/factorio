@@ -383,10 +383,12 @@ INTEGRATED_INGREDIENTS = [GEAR, CABLE]
 
 def get_productivity_with_machine_stats(recipe, recipe_machine_stats, default_productivity):
 	productivity = recipe_machine_stats.get(MACHINE_PRODUCTIVITY)
-	if productivity:
-		return productivity if recipe[ACCEPTS_PRODUCTIVITY] else 1.0
-	else:
+	#in certain machines and production modes, machines don't have productivity modules
+	if not productivity:
 		return default_productivity
+	if not recipe[ACCEPTS_PRODUCTIVITY]:
+		return 1.0
+	return productivity
 
 def get_productivity(recipe, machine_stats, default_productivity):
 	return get_productivity_with_machine_stats(recipe, machine_stats[recipe[MACHINE]], default_productivity)
