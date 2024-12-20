@@ -440,7 +440,10 @@ def add_oil(net_machine_speeds, machine_stats):
 	advanced_oil_ingredients = RECIPES[ADVANCED_OIL][INGREDIENTS]
 	for oil_ingredient, recipe_sequence in oil_ingredients_and_recipe_sequences:
 		#skip if we don't need this ingredient
-		net_oil_ingredient_needed = net_machine_speeds.get(oil_ingredient, 0) - productions.get(oil_ingredient, 0) + consumptions.get(oil_ingredient, 0)
+		net_oil_ingredient_needed = \
+			net_machine_speeds.get(oil_ingredient, 0) \
+				- productions.get(oil_ingredient, 0) \
+				+ consumptions.get(oil_ingredient, 0)
 		if net_oil_ingredient_needed == 0:
 			continue
 		#skip anything that is temporarily a resource
@@ -455,16 +458,19 @@ def add_oil(net_machine_speeds, machine_stats):
 			recipe = RECIPES[recipe_name]
 			ingredients = recipe[INGREDIENTS]
 			#recipes only consume one oil ingredient, find it first
-			consumed_ingredient = next(ingredient for ingredient in ingredients if ingredient_productions.get(ingredient) != None)
+			consumed_ingredient = \
+				next(ingredient for ingredient in ingredients if ingredient_productions.get(ingredient) != None)
 			scale_factor = ingredient_productions[consumed_ingredient] / ingredients[consumed_ingredient]
 			#update the productions
 			for ingredient, count in ingredients.items():
-				ingredient_consumptions[ingredient] = ingredient_consumptions.get(ingredient, 0) + count * scale_factor
+				ingredient_consumptions[ingredient] = \
+					ingredient_consumptions.get(ingredient, 0) + count * scale_factor
 			#crafts and outputs both need to account for productivity
 			scale_factor *= get_productivity(recipe, machine_stats, 1.0)
 			ingredient_machine_speeds[recipe_name] = scale_factor
 			for ingredient, count in recipe[ALTERNATE_OUTPUTS].items():
-				ingredient_productions[ingredient] = ingredient_productions.get(ingredient, 0) + count * scale_factor
+				ingredient_productions[ingredient] = \
+					ingredient_productions.get(ingredient, 0) + count * scale_factor
 		#find out how much we need total
 		net_scale_factor = net_oil_ingredient_needed / ingredient_productions[oil_ingredient]
 		#add all the values to the totals
@@ -529,7 +535,13 @@ def print_speed(ingredient, speed, indent, machine_stats, net_machine_speeds, pr
 	print_single_speed(ingredient, speed, indent, recipe, recipe_machine_stats)
 	if print_sub_ingredients or ingredient in INTEGRATED_INGREDIENTS:
 		for sub_ingredient, sub_count in recipe[INGREDIENTS].items():
-			print_speed(sub_ingredient, sub_count * speed / recipe_productivity / recipe[PRODUCT_COUNT], indent + BASE_INDENT, machine_stats, net_machine_speeds, sub_ingredient not in net_machine_speeds)
+			print_speed(
+				sub_ingredient,
+				sub_count * speed / recipe_productivity / recipe[PRODUCT_COUNT],
+				indent + BASE_INDENT,
+				machine_stats,
+				net_machine_speeds,
+				sub_ingredient not in net_machine_speeds)
 
 def print_desired_output(desired_output, production_mode):
 	print("Desired output:")
@@ -587,7 +599,8 @@ def print_desired_output_and_machine_speeds(desired_outputs, production_mode, ex
 
 	if not isinstance(desired_outputs, list):
 		print_desired_output(desired_outputs, production_mode)
-		print_machine_speeds(desired_outputs.keys(), get_machines_speeds(desired_outputs, production_mode), production_mode)
+		print_machine_speeds(
+			desired_outputs.keys(), get_machines_speeds(desired_outputs, production_mode), production_mode)
 	else:
 		all_machine_speeds = []
 		all_desired_output_ingredients = []
@@ -611,9 +624,12 @@ def print_megabase_belt_splits(output, input, supply_belt_speed_sequence=[], cra
 		next(input_iter)
 		for next_input in input_iter:
 			recipe = RECIPES[last_input]
-			input_per_supply_belt *= Fraction(recipe[INGREDIENTS][next_input], recipe[PRODUCT_COUNT]) / Fraction(get_productivity(recipe, megabase_machine_stats, 1.0))
+			input_per_supply_belt *= \
+				Fraction(recipe[INGREDIENTS][next_input], recipe[PRODUCT_COUNT]) \
+					/ Fraction(get_productivity(recipe, megabase_machine_stats, 1.0))
 			last_input = next_input
-		supply_belt_speed_sequence = list(map(lambda x: Fraction(x).limit_denominator(1000000) * input_per_supply_belt, craft_rate_sequence))
+		supply_belt_speed_sequence = \
+			list(map(lambda x: Fraction(x).limit_denominator(1000000) * input_per_supply_belt, craft_rate_sequence))
 	if type(input) == list:
 		input = input[-1]
 	next_supply_belt = 0
@@ -653,7 +669,8 @@ def print_megabase_belt_splits(output, input, supply_belt_speed_sequence=[], cra
 				supply_belts_text, supply_belts_text_max_len))
 	#spare at some point
 	else:
-		for input_belt_text, used_spare_text, supply_belts_text, input_spare_text in zip(input_belt_texts, used_spare_texts, supply_belts_texts, input_spare_texts):
+		texts = zip(input_belt_texts, used_spare_texts, supply_belts_texts, input_spare_texts)
+		for input_belt_text, used_spare_text, supply_belts_text, input_spare_text in texts:
 			if input_spare_text:
 				print("{:{}}{:{}}: {:{}} + {:{}} spare".format(
 					input_belt_text, input_belt_text_max_len,
