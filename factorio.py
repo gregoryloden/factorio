@@ -77,222 +77,168 @@ LIGHT_OIL = add_item("Light oil", machine = FLUID_CHEMICAL_PLANT)
 HEAVY_OIL = add_item("Heavy oil", machine = FLUID_CHEMICAL_PLANT)
 LUBRICANT = add_item("Lubricant", machine = FLUID_CHEMICAL_PLANT)
 SOLID_FUEL = add_item(
-	name = "Solid fuel",
-	time = 2,
-	machine = CHEMICAL_PLANT,
+	name = "Solid fuel", time = 2, machine = CHEMICAL_PLANT,
 	ingredients = {
 		LIGHT_OIL: 10
 	})
 IRON = add_item(
-	name = "Iron plate",
-	time = 3.2,
-	machine = FURNACE,
+	name = "Iron plate", time = 3.2, machine = FURNACE,
 	ingredients = {
 		IRON_ORE: 1
 	})
 COPPER = add_item(
-	name = "Copper plate",
-	time = 3.2,
-	machine = FURNACE,
+	name = "Copper plate", time = 3.2, machine = FURNACE,
 	ingredients = {
 		COPPER_ORE: 1
 	})
 STONE_BRICK = add_item(
-	name = "Stone brick",
-	time = 3.2,
-	machine = FURNACE,
+	name = "Stone brick", time = 3.2, machine = FURNACE,
 	ingredients = {
 		STONE: 2
 	})
 STEEL = add_item(
-	name = "Steel plate",
-	time = 16,
-	machine = FURNACE,
+	name = "Steel plate", time = 16, machine = FURNACE,
 	ingredients = {
 		IRON: 5
 	})
 GEAR = add_item(
-	name = "Iron gear wheel",
-	time = 0.5,
+	name = "Iron gear wheel", time = 0.5,
 	ingredients = {
 		IRON: 2
 	})
 CABLE = add_item(
-	name = "Copper cable",
-	time = 0.5,
-	product_count = 2,
+	name = "Copper cable", time = 0.5, product_count = 2,
 	ingredients = {
 		COPPER: 1
 	})
 CIRCUIT = add_item(
-	name = "Electronic circuit",
-	time = 0.5,
+	name = "Electronic circuit", time = 0.5,
 	ingredients = {
 		IRON: 1,
 		CABLE: 3
 	})
 BELT = add_item(
-	name = "Transport belt",
-	time = 0.5,
-	product_count = 2,
-	accepts_productivity = False,
+	name = "Transport belt", time = 0.5, product_count = 2, accepts_productivity = False,
 	ingredients = {
 		IRON: 1,
 		GEAR: 1
 	})
 INSERTER = add_item(
-	name = "Inserter",
-	time = 0.5,
-	accepts_productivity = False,
+	name = "Inserter", time = 0.5, accepts_productivity = False,
 	ingredients = {
 		IRON: 1,
 		GEAR: 1,
 		CIRCUIT: 1
 	})
 BULLET = add_item(
-	name = "Firearm magazine",
-	time = 1,
-	accepts_productivity = False,
+	name = "Firearm magazine", time = 1, accepts_productivity = False,
 	ingredients = {
 		IRON: 4
 	})
 PIERCING = add_item(
-	name = "Piercing rounds magazine",
-	time = 3,
-	accepts_productivity = False,
+	name = "Piercing rounds magazine", time = 3, accepts_productivity = False,
 	ingredients = {
 		COPPER: 5,
 		STEEL: 1,
 		BULLET: 1
 	})
 GRENADE = add_item(
-	name = "Grenade",
-	time = 8,
-	accepts_productivity = False,
+	name = "Grenade", time = 8, accepts_productivity = False,
 	ingredients = {
 		COAL: 10,
 		IRON: 5
 	})
 WALL = add_item(
-	name = "Wall",
-	time = 0.5,
-	accepts_productivity = False,
+	name = "Wall", time = 0.5, accepts_productivity = False,
 	ingredients = {
 		STONE_BRICK: 5
 	})
 SULFUR = add_item(
-	name = "Sulfur",
-	time = 1,
-	product_count = 2,
-	machine = CHEMICAL_PLANT,
+	name = "Sulfur", time = 1, product_count = 2, machine = CHEMICAL_PLANT,
 	ingredients = {
 		WATER: 30,
 		PETROLEUM: 30
 	})
 PLASTIC = add_item(
-	name = "Plastic bar",
-	time = 1,
-	product_count = 2,
-	machine = CHEMICAL_PLANT,
+	name = "Plastic bar", time = 1, product_count = 2, machine = CHEMICAL_PLANT,
 	ingredients = {
 		COAL: 1,
 		PETROLEUM: 20
 	})
 ADVANCED_CIRCUIT = add_item(
-	name = "Advanced circuit",
-	time = 6,
+	name = "Advanced circuit", time = 6,
 	ingredients = {
 		PLASTIC: 2,
 		CABLE: 4,
 		CIRCUIT: 2
 	})
 PIPE = add_item(
-	name = "Pipe",
-	time = 0.5,
-	accepts_productivity = False,
+	name = "Pipe", time = 0.5, accepts_productivity = False,
 	ingredients = {
 		IRON: 1
 	})
 ENGINE = add_item(
-	name = "Engine unit",
-	time = 10,
+	name = "Engine unit", time = 10,
 	ingredients = {
 		STEEL: 1,
 		GEAR: 1,
 		PIPE: 2
 	})
 STICK = add_item(
-	name = "Iron stick",
-	time = 0.5,
-	product_count = 2,
+	name = "Iron stick", time = 0.5, product_count = 2,
 	ingredients = {
 		IRON: 1
 	})
 RAIL = add_item(
-	name = "Rail",
-	time = 0.5,
-	product_count = 2,
-	accepts_productivity = False,
+	name = "Rail", time = 0.5, product_count = 2, accepts_productivity = False,
 	ingredients = {
 		STONE: 1,
 		STEEL: 1,
 		STICK: 1
 	})
 ELECTRIC_FURNACE = add_item(
-	name = "Electric furnace",
-	time = 5,
-	accepts_productivity = False,
+	name = "Electric furnace", time = 5, accepts_productivity = False,
 	ingredients = {
 		STEEL: 10,
 		ADVANCED_CIRCUIT: 5,
 		STONE_BRICK: 10
 	})
 PRODUCTIVITY = add_item(
-	name = "Productivity module",
-	time = 15,
-	accepts_productivity = False,
+	name = "Productivity module", time = 15, accepts_productivity = False,
 	ingredients = {
 		CIRCUIT: 5,
 		ADVANCED_CIRCUIT: 5
 	})
 SULFURIC_ACID = add_item(
-	name = "Sulfuric acid",
-	time = 1,
-	product_count = 50,
-	machine = FLUID_CHEMICAL_PLANT,
+	name = "Sulfuric acid", time = 1, product_count = 50, machine = FLUID_CHEMICAL_PLANT,
 	ingredients = {
 		IRON: 1,
 		SULFUR: 5,
 		WATER: 100
 	})
 PROCESSING = add_item(
-	name = "Processing unit",
-	time = 10,
+	name = "Processing unit", time = 10,
 	ingredients = {
 		CIRCUIT: 20,
 		ADVANCED_CIRCUIT: 2,
 		SULFURIC_ACID: 5
 	})
 BATTERY = add_item(
-	name = "Battery",
-	time = 4,
-	machine = CHEMICAL_PLANT,
+	name = "Battery", time = 4, machine = CHEMICAL_PLANT,
 	ingredients = {
 		IRON: 1,
 		COPPER: 1,
 		SULFURIC_ACID: 20
 	})
 ELECTRIC_ENGINE = add_item(
-	name = "Electric engine unit",
-	time = 10,
+	name = "Electric engine unit", time = 10,
 	ingredients = {
 		CIRCUIT: 2,
 		ENGINE: 1,
 		LUBRICANT: 15
 	})
 ROBOT_FRAME = add_item(
-	name = "Flying robot frame",
-	time = 20,
+	name = "Flying robot frame", time = 20,
 	ingredients = {
 		STEEL: 1,
 		BATTERY: 2,
@@ -300,123 +246,99 @@ ROBOT_FRAME = add_item(
 		ELECTRIC_ENGINE: 1
 	})
 SPEED_MODULE = add_item(
-	name = "Speed module",
-	time = 15,
-	accepts_productivity = False,
+	name = "Speed module", time = 15, accepts_productivity = False,
 	ingredients = {
 		CIRCUIT: 5,
 		ADVANCED_CIRCUIT: 5
 	})
 STRUCTURE = add_item(
-	name = "Low density structure",
-	time = 20,
+	name = "Low density structure", time = 20,
 	ingredients = {
 		COPPER: 20,
 		STEEL: 2,
 		PLASTIC: 5
 	})
 CONTROL_UNIT = add_item(
-	name = "Rocket control unit",
-	time = 30,
+	name = "Rocket control unit", time = 30,
 	ingredients = {
 		PROCESSING: 1,
 		SPEED_MODULE: 1
 	})
 ROCKET_FUEL = add_item(
-	name = "Rocket fuel",
-	time = 30,
+	name = "Rocket fuel", time = 30,
 	ingredients = {
 		SOLID_FUEL: 10,
 		LIGHT_OIL: 10
 	})
 AUTOMATION = add_item(
-	name = "Automation science pack",
-	time = 5,
+	name = "Automation science pack", time = 5,
 	ingredients = {
 		COPPER: 1,
 		GEAR: 1
 	})
 LOGISTIC = add_item(
-	name = "Logistic science pack",
-	time = 6,
+	name = "Logistic science pack", time = 6,
 	ingredients = {
 		BELT: 1,
 		INSERTER: 1
 	})
 CHEMICAL = add_item(
-	name = "Chemical science pack",
-	time = 24,
-	product_count = 2,
+	name = "Chemical science pack", time = 24, product_count = 2,
 	ingredients = {
 		SULFUR: 1,
 		ADVANCED_CIRCUIT: 3,
 		ENGINE: 2
 	})
 MILITARY = add_item(
-	name = "Military science pack",
-	time = 10,
-	product_count = 2,
+	name = "Military science pack", time = 10, product_count = 2,
 	ingredients = {
 		PIERCING: 1,
 		GRENADE: 1,
 		WALL: 2
 	})
 PRODUCTION = add_item(
-	name = "Production science pack",
-	time = 21,
-	product_count = 3,
+	name = "Production science pack", time = 21, product_count = 3,
 	ingredients = {
 		RAIL: 30,
 		ELECTRIC_FURNACE: 1,
 		PRODUCTIVITY: 1
 	})
 UTILITY = add_item(
-	name = "Utility science pack",
-	time = 21,
-	product_count = 3,
+	name = "Utility science pack", time = 21, product_count = 3,
 	ingredients = {
 		PROCESSING: 2,
 		ROBOT_FRAME: 1,
 		STRUCTURE: 3
 	})
 ROCKET = add_item(
-	name = "Rocket launch",
-	time = 300,
+	name = "Rocket launch", time = 300,
 	ingredients = {
 		CONTROL_UNIT: 1000,
 		STRUCTURE: 1000,
 		ROCKET_FUEL: 1000
 	})
 SOLAR_PANEL = add_item(
-	name = "Solar panel",
-	time = 10,
-	accepts_productivity = False,
+	name = "Solar panel", time = 10, accepts_productivity = False,
 	ingredients = {
 		COPPER: 5,
 		STEEL: 5,
 		CIRCUIT: 15
 	})
 ACCUMULATOR = add_item(
-	name = "Accumulator",
-	time = 10,
-	accepts_productivity = False,
+	name = "Accumulator", time = 10, accepts_productivity = False,
 	ingredients = {
 		IRON: 2,
 		BATTERY: 5
 	})
 RADAR = add_item(
-	name = "Radar",
-	time = 0.5,
-	accepts_productivity = False,
+	name = "Radar", time = 0.5, accepts_productivity = False,
 	ingredients = {
 		IRON: 10,
 		GEAR: 5,
 		CIRCUIT: 5
 	})
 SATELLITE = add_item(
-	name = "Satellite",
-	time = 5,
-	accepts_productivity = False,
+	name = "Satellite", time = 5, accepts_productivity = False,
 	ingredients = {
 		PROCESSING: 100,
 		STRUCTURE: 100,
@@ -426,17 +348,13 @@ SATELLITE = add_item(
 		RADAR: 5
 	})
 SATELLITE_LAUNCH = add_item(
-	name = "Satellite launch",
-	time = 1,
-	accepts_productivity = False,
+	name = "Satellite launch", time = 1, accepts_productivity = False,
 	ingredients = {
 		ROCKET: 1,
 		SATELLITE: 1
 	})
 ADVANCED_OIL = add_item(
-	name = "Advanced oil processing",
-	time = 5,
-	machine = FLUID_CHEMICAL_PLANT,
+	name = "Advanced oil processing", time = 5, machine = FLUID_CHEMICAL_PLANT,
 	ingredients = {
 		CRUDE_OIL: 100,
 		WATER: 50
@@ -447,9 +365,7 @@ ADVANCED_OIL = add_item(
 		HEAVY_OIL: 25
 	})
 LUBRICANT_RECIPE = add_item(
-	name = "Lubricant (recipe)",
-	time = 1,
-	machine = FLUID_CHEMICAL_PLANT,
+	name = "Lubricant (recipe)", time = 1, machine = FLUID_CHEMICAL_PLANT,
 	ingredients = {
 		HEAVY_OIL: 10
 	},
@@ -457,9 +373,7 @@ LUBRICANT_RECIPE = add_item(
 		LUBRICANT: 10
 	})
 HEAVY_OIL_CRACKING = add_item(
-	name = "Heavy oil cracking",
-	time = 2,
-	machine = FLUID_CHEMICAL_PLANT,
+	name = "Heavy oil cracking", time = 2, machine = FLUID_CHEMICAL_PLANT,
 	ingredients = {
 		HEAVY_OIL: 40,
 		WATER: 30
@@ -468,9 +382,7 @@ HEAVY_OIL_CRACKING = add_item(
 		LIGHT_OIL: 30
 	})
 LIGHT_OIL_CRACKING = add_item(
-	name = "Light oil cracking",
-	time = 2,
-	machine = FLUID_CHEMICAL_PLANT,
+	name = "Light oil cracking", time = 2, machine = FLUID_CHEMICAL_PLANT,
 	ingredients = {
 		LIGHT_OIL: 30,
 		WATER: 30
