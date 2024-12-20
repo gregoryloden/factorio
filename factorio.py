@@ -510,6 +510,7 @@ def print_single_speed(ingredient, speed, indent, recipe, recipe_machine_stats):
 		belts = math.ceil(speed * 10.0 / belt_speed) / 10
 		extra_stats.append("{:.1f} belts".format(belts))
 	recipe_productivity = get_productivity_with_machine_stats(recipe, recipe_machine_stats, None)
+	#don't show craft rate if the machine won't use productivity
 	if recipe_productivity:
 		machine_craft_rate = speed * recipe[TIME] / recipe[PRODUCT_COUNT] / recipe_productivity
 		extra_stats.append("{:.4f} craft rate".format(machine_craft_rate))
