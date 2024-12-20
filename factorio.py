@@ -47,14 +47,21 @@ MACHINE_STATS_BY_PRODUCTION_MODE = {
 INGREDIENTS_LIST = []
 RECIPES = {}
 
-def add_item(name, time = 0, product_count = 1, machine = ASSEMBLER, accepts_productivity = True, ingredients = {}, alternate_outputs = {}):
+def add_item(
+		name,
+		time = 0,
+		product_count = 1,
+		machine = ASSEMBLER,
+		accepts_productivity = True,
+		ingredients = {},
+		alternate_outputs = {}):
 	RECIPES[name] = {
 		TIME: time,
 		PRODUCT_COUNT: product_count,
 		INGREDIENTS: ingredients,
 		MACHINE: machine,
 		ACCEPTS_PRODUCTIVITY: accepts_productivity,
-		ALTERNATE_OUTPUTS: alternate_outputs
+		ALTERNATE_OUTPUTS: alternate_outputs,
 	}
 	INGREDIENTS_LIST.append(name)
 	return name
