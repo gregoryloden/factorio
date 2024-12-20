@@ -245,24 +245,12 @@ ROBOT_FRAME = add_item(
 		CIRCUIT: 3,
 		ELECTRIC_ENGINE: 1
 	})
-SPEED_MODULE = add_item(
-	name = "Speed module", time = 15, accepts_productivity = False,
-	ingredients = {
-		CIRCUIT: 5,
-		ADVANCED_CIRCUIT: 5
-	})
 STRUCTURE = add_item(
 	name = "Low density structure", time = 20,
 	ingredients = {
 		COPPER: 20,
 		STEEL: 2,
 		PLASTIC: 5
-	})
-CONTROL_UNIT = add_item(
-	name = "Rocket control unit", time = 30,
-	ingredients = {
-		PROCESSING: 1,
-		SPEED_MODULE: 1
 	})
 ROCKET_FUEL = add_item(
 	name = "Rocket fuel", time = 30,
@@ -313,7 +301,7 @@ UTILITY = add_item(
 ROCKET = add_item(
 	name = "Rocket launch", time = 300,
 	ingredients = {
-		CONTROL_UNIT: 1000,
+		PROCESSING: 1000,
 		STRUCTURE: 1000,
 		ROCKET_FUEL: 1000
 	})
