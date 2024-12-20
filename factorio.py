@@ -676,3 +676,31 @@ def print_megabase_belt_splits(output, input, supply_belt_speed_sequence=[], cra
 	print("")
 
 print("\n\n")
+
+print_desired_output_and_machine_speeds(
+	[
+		{
+			AUTOMATION: 1,
+			LOGISTIC: 1,
+			CHEMICAL: 1,
+			MILITARY: 1,
+			PRODUCTION: 1,
+			UTILITY: 1,
+		},
+		{
+			ROCKET: 1 / 1200,
+		},
+	],
+	SPEEDRUN)
+print_desired_output_and_machine_speeds(
+	{
+		AUTOMATION: 45,
+		LOGISTIC: 45,
+		CHEMICAL: 45,
+		MILITARY: 45,
+		PRODUCTION: 45,
+		UTILITY: 45,
+		SATELLITE_LAUNCH: 45 / 1000,
+	},
+	MEGABASE)
+print_megabase_belt_splits(IRON, IRON_ORE, [Fraction(MEGABASE_BELT_SPEED * 5, 6)] * 6)
