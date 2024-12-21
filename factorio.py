@@ -5,7 +5,6 @@ from fractions import Fraction
 TIME = "time"
 PRODUCT_COUNT = "product count"
 INGREDIENTS = "ingredients"
-INGREDIENT = "ingredient"
 SPEED = "speed"
 MACHINE = "machine"
 TIER = "tier"
