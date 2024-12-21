@@ -1,5 +1,5 @@
 import math
-from collections import deque
+import heapq
 from fractions import Fraction
 
 TIME = "time"
@@ -8,6 +8,7 @@ INGREDIENTS = "ingredients"
 INGREDIENT = "ingredient"
 SPEED = "speed"
 MACHINE = "machine"
+TIER = "tier"
 RESOURCE = "resource"
 FLUID_RESOURCE = "fluid resource"
 FURNACE = "furnace"
@@ -47,6 +48,14 @@ MACHINE_STATS_BY_PRODUCTION_MODE = {
 INGREDIENTS_LIST = []
 RECIPES = {}
 
+class ItemProduction:
+	def __init__(self, name):
+		self.name = name
+		self.tier = RECIPES[name][TIER]
+
+	def __lt__(self, other):
+		return self.tier > other.tier
+
 def add_item(
 		name,
 		time = 0,
@@ -62,6 +71,7 @@ def add_item(
 		MACHINE: machine,
 		ACCEPTS_PRODUCTIVITY: accepts_productivity,
 		ALTERNATE_OUTPUTS: alternate_outputs,
+		TIER: (max(RECIPES[ingredient][TIER] for ingredient in ingredients) + 1 if ingredients else 0),
 	}
 	INGREDIENTS_LIST.append(name)
 	return name
@@ -395,21 +405,27 @@ def get_productivity(recipe, machine_stats, default_productivity):
 
 def get_machines_speeds(desired_output, production_mode):
 	net_machine_speeds = {}
-	remaining_machines_needed = deque()
+	remaining_machines_needed = []
 	machine_stats = MACHINE_STATS_BY_PRODUCTION_MODE[production_mode]
 
 	for output, speed in desired_output.items():
-		remaining_machines_needed.append({INGREDIENT: output, SPEED: speed})
+		net_machine_speeds[output] = speed
+		remaining_machines_needed.append(ItemProduction(output))
+	heapq.heapify(remaining_machines_needed)
 
 	while len(remaining_machines_needed) > 0:
-		next_machine_needed = remaining_machines_needed.popleft()
-		ingredient = next_machine_needed[INGREDIENT]
-		speed = next_machine_needed[SPEED]
-		net_machine_speeds[ingredient] = net_machine_speeds.get(ingredient, 0) + speed
+		next_machine_needed = heapq.heappop(remaining_machines_needed)
+		ingredient = next_machine_needed.name
 		recipe = RECIPES[ingredient]
-		sub_ingredient_base_speed = speed / get_productivity(recipe, machine_stats, 1.0) / recipe[PRODUCT_COUNT]
+		sub_ingredient_base_speed = \
+			net_machine_speeds[ingredient] / get_productivity(recipe, machine_stats, 1.0) / recipe[PRODUCT_COUNT]
 		for sub_ingredient, count in recipe[INGREDIENTS].items():
-			remaining_machines_needed.append({INGREDIENT: sub_ingredient, SPEED: count * sub_ingredient_base_speed})
+			sub_ingredient_speed = count * sub_ingredient_base_speed
+			if sub_ingredient in net_machine_speeds:
+				net_machine_speeds[sub_ingredient] += sub_ingredient_speed
+			else:
+				net_machine_speeds[sub_ingredient] = sub_ingredient_speed
+				heapq.heappush(remaining_machines_needed, ItemProduction(sub_ingredient))
 
 	if production_mode == MEGABASE:
 		add_oil(net_machine_speeds, machine_stats)
