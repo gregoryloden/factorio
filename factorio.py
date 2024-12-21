@@ -2,6 +2,7 @@ import math
 import heapq
 from fractions import Fraction
 
+EMPTY_DICT = {}
 TIME = "time"
 PRODUCT_COUNT = "product count"
 INGREDIENTS = "ingredients"
@@ -17,6 +18,7 @@ FLUID_CHEMICAL_PLANT = "fluid chemical plant"
 RESOURCE_MACHINES = [RESOURCE, FLUID_RESOURCE]
 ACCEPTS_PRODUCTIVITY = "accepts productivity"
 ALTERNATE_OUTPUTS = "alternate outputs"
+RECIPE_INGREDIENTS = "recipe ingredients"
 MACHINE_CRAFT_RATE = "machine craft rate"
 MACHINE_PRODUCTIVITY = "machine productivity"
 BELT_SPEED = "belt speed"
@@ -61,19 +63,32 @@ def add_item(
 		product_count = 1,
 		machine = ASSEMBLER,
 		accepts_productivity = True,
-		ingredients = {},
-		alternate_outputs = {}):
-	RECIPES[name] = {
+		ingredients = None,
+		alternate_outputs = None):
+	recipe = {
 		TIME: time,
 		PRODUCT_COUNT: product_count,
-		INGREDIENTS: ingredients,
 		MACHINE: machine,
 		ACCEPTS_PRODUCTIVITY: accepts_productivity,
-		ALTERNATE_OUTPUTS: alternate_outputs,
 		TIER: (max(RECIPES[ingredient][TIER] for ingredient in ingredients) + 1 if ingredients else 0),
 	}
+	for field, value in [(INGREDIENTS, ingredients), (ALTERNATE_OUTPUTS, alternate_outputs)]:
+		if value:
+			recipe[field] = value
+	RECIPES[name] = recipe
 	INGREDIENTS_LIST.append(name)
 	return name
+
+def set_recipe_ingredients(names, recipe_sequence):
+	tier = max(RECIPES[recipe_name][TIER] for recipe_name in recipe_sequence)
+	for name in names:
+		recipe = RECIPES[name]
+		tier += 1
+		recipe[TIER] = tier
+		recipe_ingredients = recipe_sequence.copy()
+		while (name not in (output for output in RECIPES[recipe_ingredients[-1]][ALTERNATE_OUTPUTS])):
+			recipe_ingredients.pop()
+		recipe[RECIPE_INGREDIENTS] = recipe_ingredients
 
 IRON_ORE = add_item("Iron ore", machine = RESOURCE)
 COPPER_ORE = add_item("Copper ore", machine = RESOURCE)
@@ -81,15 +96,39 @@ COAL = add_item("Coal", machine = RESOURCE)
 STONE = add_item("Stone", machine = RESOURCE)
 WATER = add_item("Water", machine = FLUID_RESOURCE)
 CRUDE_OIL = add_item("Crude oil", machine = FLUID_RESOURCE)
-PETROLEUM = add_item("Petroleum gas", machine = FLUID_CHEMICAL_PLANT)
-LIGHT_OIL = add_item("Light oil", machine = FLUID_CHEMICAL_PLANT)
-HEAVY_OIL = add_item("Heavy oil", machine = FLUID_CHEMICAL_PLANT)
-LUBRICANT = add_item("Lubricant", machine = FLUID_CHEMICAL_PLANT)
-SOLID_FUEL = add_item(
-	"Solid fuel", time = 2, machine = CHEMICAL_PLANT,
+PETROLEUM = add_item("Petroleum gas", machine = FLUID_RESOURCE)
+LIGHT_OIL = add_item("Light oil", machine = FLUID_RESOURCE)
+HEAVY_OIL = add_item("Heavy oil", machine = FLUID_RESOURCE)
+ADVANCED_OIL = add_item(
+	"Advanced oil processing", time = 5, machine = FLUID_CHEMICAL_PLANT,
 	ingredients = {
-		LIGHT_OIL: 10,
+		CRUDE_OIL: 100,
+		WATER: 50,
+	},
+	alternate_outputs = {
+		PETROLEUM: 55,
+		LIGHT_OIL: 45,
+		HEAVY_OIL: 25,
 	})
+HEAVY_OIL_CRACKING = add_item(
+	"Heavy oil cracking", time = 2, machine = FLUID_CHEMICAL_PLANT,
+	ingredients = {
+		HEAVY_OIL: 40,
+		WATER: 30,
+	},
+	alternate_outputs = {
+		LIGHT_OIL: 30,
+	})
+LIGHT_OIL_CRACKING = add_item(
+	"Light oil cracking", time = 2, machine = FLUID_CHEMICAL_PLANT,
+	ingredients = {
+		LIGHT_OIL: 30,
+		WATER: 30,
+	},
+	alternate_outputs = {
+		PETROLEUM: 20,
+	})
+set_recipe_ingredients([PETROLEUM, LIGHT_OIL, HEAVY_OIL], [ADVANCED_OIL, HEAVY_OIL_CRACKING, LIGHT_OIL_CRACKING])
 IRON = add_item(
 	"Iron plate", time = 3.2, machine = FURNACE,
 	ingredients = {
@@ -239,6 +278,11 @@ BATTERY = add_item(
 		COPPER: 1,
 		SULFURIC_ACID: 20,
 	})
+LUBRICANT = add_item(
+	"Lubricant", time = 1, product_count = 10, machine = FLUID_CHEMICAL_PLANT,
+	ingredients = {
+		HEAVY_OIL: 10,
+	})
 ELECTRIC_ENGINE = add_item(
 	"Electric engine unit", time = 10,
 	ingredients = {
@@ -260,6 +304,11 @@ STRUCTURE = add_item(
 		COPPER: 20,
 		STEEL: 2,
 		PLASTIC: 5,
+	})
+SOLID_FUEL = add_item(
+	"Solid fuel", time = 2, machine = CHEMICAL_PLANT,
+	ingredients = {
+		LIGHT_OIL: 10,
 	})
 ROCKET_FUEL = add_item(
 	"Rocket fuel", time = 30,
@@ -350,43 +399,6 @@ SATELLITE_LAUNCH = add_item(
 		ROCKET: 1,
 		SATELLITE: 1,
 	})
-ADVANCED_OIL = add_item(
-	"Advanced oil processing", time = 5, machine = FLUID_CHEMICAL_PLANT,
-	ingredients = {
-		CRUDE_OIL: 100,
-		WATER: 50,
-	},
-	alternate_outputs = {
-		PETROLEUM: 55,
-		LIGHT_OIL: 45,
-		HEAVY_OIL: 25,
-	})
-LUBRICANT_RECIPE = add_item(
-	"Lubricant (recipe)", time = 1, machine = FLUID_CHEMICAL_PLANT,
-	ingredients = {
-		HEAVY_OIL: 10,
-	},
-	alternate_outputs = {
-		LUBRICANT: 10,
-	})
-HEAVY_OIL_CRACKING = add_item(
-	"Heavy oil cracking", time = 2, machine = FLUID_CHEMICAL_PLANT,
-	ingredients = {
-		HEAVY_OIL: 40,
-		WATER: 30,
-	},
-	alternate_outputs = {
-		LIGHT_OIL: 30,
-	})
-LIGHT_OIL_CRACKING = add_item(
-	"Light oil cracking", time = 2, machine = FLUID_CHEMICAL_PLANT,
-	ingredients = {
-		LIGHT_OIL: 30,
-		WATER: 30,
-	},
-	alternate_outputs = {
-		PETROLEUM: 20,
-	})
 
 INTEGRATED_INGREDIENTS = [GEAR, CABLE]
 
@@ -405,93 +417,71 @@ def get_productivity(recipe, machine_stats, default_productivity):
 def get_machines_speeds(desired_output, production_mode):
 	net_machine_speeds = {}
 	remaining_machines_needed = []
+	byproduct_production = {}
 	machine_stats = MACHINE_STATS_BY_PRODUCTION_MODE[production_mode]
+	def add_ingredient_production(ingredient, speed):
+		if ingredient in net_machine_speeds:
+			net_machine_speeds[ingredient] += speed
+		else:
+			net_machine_speeds[ingredient] = speed
+			heapq.heappush(remaining_machines_needed, ItemProduction(ingredient))
 
+	#setup our initial required products
 	for output, speed in desired_output.items():
 		net_machine_speeds[output] = speed
 		remaining_machines_needed.append(ItemProduction(output))
 	heapq.heapify(remaining_machines_needed)
 
+	#go through products and add all their prerequisites
 	while len(remaining_machines_needed) > 0:
 		next_machine_needed = heapq.heappop(remaining_machines_needed)
 		ingredient = next_machine_needed.name
+		speed = net_machine_speeds[ingredient] - byproduct_production.get(ingredient, 0)
 		recipe = RECIPES[ingredient]
-		sub_ingredient_base_speed = \
-			net_machine_speeds[ingredient] / get_productivity(recipe, machine_stats, 1.0) / recipe[PRODUCT_COUNT]
-		for sub_ingredient, count in recipe[INGREDIENTS].items():
-			sub_ingredient_speed = count * sub_ingredient_base_speed
-			if sub_ingredient in net_machine_speeds:
-				net_machine_speeds[sub_ingredient] += sub_ingredient_speed
-			else:
-				net_machine_speeds[sub_ingredient] = sub_ingredient_speed
-				heapq.heappush(remaining_machines_needed, ItemProduction(sub_ingredient))
-
-	if production_mode == MEGABASE:
-		add_oil(net_machine_speeds, machine_stats)
+		sub_ingredients = recipe.get(INGREDIENTS, None)
+		recipe_ingredients = recipe.get(RECIPE_INGREDIENTS, None)
+		#simple craft: add all the ingredients to the list
+		if sub_ingredients:
+			sub_ingredient_base_speed = speed / get_productivity(recipe, machine_stats, 1.0) / recipe[PRODUCT_COUNT]
+			for sub_ingredient, count in sub_ingredients.items():
+				add_ingredient_production(sub_ingredient, count * sub_ingredient_base_speed)
+		#recipe sequence craft: calculate how much of each recipe we need to get our desired ingredient at its speed
+		elif recipe_ingredients:
+			#start by calculating the products we get per initial recipe craft
+			#start that by producing the ingredients for one initial recipe craft
+			ingredient_productions = dict([next(iter(RECIPES[recipe_ingredients[0]][INGREDIENTS].items()))])
+			recipe_productions = {}
+			#go through each recipe in the sequence to convert ingredients into our desired final ingredient
+			for recipe_name in recipe_ingredients:
+				next_recipe = RECIPES[recipe_name]
+				next_ingredients = next_recipe[INGREDIENTS]
+				#each recipe consumes at least one of the ingredients already produced
+				produced_ingredient = next(
+					ingredient for ingredient in next_ingredients if ingredient in ingredient_productions)
+				#scale production of the recipe to make its consumption match previous production
+				scale_factor = \
+					(ingredient_productions[produced_ingredient]
+						/ next_ingredients[produced_ingredient]
+						#and then factor in productivity
+						* get_productivity(next_recipe, machine_stats, 1.0))
+				del ingredient_productions[produced_ingredient]
+				recipe_productions[recipe_name] = scale_factor
+				#update productions
+				for sub_ingredient, count in next_recipe[ALTERNATE_OUTPUTS].items():
+					ingredient_productions[sub_ingredient] = \
+						ingredient_productions.get(sub_ingredient, 0) + count * scale_factor
+			#we now know the products we get per initial recipe craft
+			#calculate how many of each recipe we need and update productions
+			scale_factor = speed / ingredient_productions[ingredient]
+			for recipe_name in recipe_ingredients:
+				add_ingredient_production(recipe_name, recipe_productions[recipe_name] * scale_factor)
+			#in addition, track any byproducts
+			del ingredient_productions[ingredient]
+			for byproduct, byproduct_speed in ingredient_productions.items():
+				byproduct_production[byproduct] = \
+					byproduct_production.get(byproduct, 0) + byproduct_speed * scale_factor
 
 	return net_machine_speeds
-
-def add_oil(net_machine_speeds, machine_stats):
-	oil_ingredients_and_recipe_sequences = [
-		(LUBRICANT, [ADVANCED_OIL, LUBRICANT_RECIPE]),
-		(HEAVY_OIL, [ADVANCED_OIL]),
-		(LIGHT_OIL, [ADVANCED_OIL, HEAVY_OIL_CRACKING]),
-		(PETROLEUM, [ADVANCED_OIL, HEAVY_OIL_CRACKING, LIGHT_OIL_CRACKING])
-	]
-	consumptions = {}
-	machine_speeds = {}
-	productions = {}
-
-	for oil_ingredient, recipe_sequence in oil_ingredients_and_recipe_sequences:
-		#skip if we don't need this ingredient
-		net_oil_ingredient_needed = \
-			net_machine_speeds.get(oil_ingredient, 0) \
-				- productions.get(oil_ingredient, 0) \
-				+ consumptions.get(oil_ingredient, 0)
-		if net_oil_ingredient_needed == 0:
-			continue
-		#skip anything that is temporarily a resource
-		if RECIPES[oil_ingredient][MACHINE] == FLUID_RESOURCE:
-			continue
-		#start by producing the ingredients for one initial oil craft
-		ingredient_consumptions = {}
-		ingredient_machine_speeds = {}
-		ingredient_productions = RECIPES[recipe_sequence[0]][INGREDIENTS].copy()
-		#go through each recipe in the sequence to convert ingredients into our desired oil
-		for recipe_name in recipe_sequence:
-			recipe = RECIPES[recipe_name]
-			ingredients = recipe[INGREDIENTS]
-			#each recipe consumes at least one of the ingredients already produced
-			produced_ingredient = \
-				next(ingredient for ingredient in ingredients if ingredient in ingredient_productions)
-			#scale consumption to match production and update the consumptions
-			scale_factor = ingredient_productions[produced_ingredient] / ingredients[produced_ingredient]
-			for ingredient, count in ingredients.items():
-				ingredient_consumptions[ingredient] = \
-					ingredient_consumptions.get(ingredient, 0) + count * scale_factor
-			#crafts and outputs both need to account for productivity
-			scale_factor *= get_productivity(recipe, machine_stats, 1.0)
-			ingredient_machine_speeds[recipe_name] = scale_factor
-			for ingredient, count in recipe[ALTERNATE_OUTPUTS].items():
-				ingredient_productions[ingredient] = \
-					ingredient_productions.get(ingredient, 0) + count * scale_factor
-		#find out how much we need total
-		net_scale_factor = net_oil_ingredient_needed / ingredient_productions[oil_ingredient]
-		#add all the values to the totals
-		#this includes the fake production of the initial oil ingredients but those will eventually get discarded
-		combined_value_maps = [
-			(ingredient_consumptions, consumptions),
-			(ingredient_machine_speeds, machine_speeds),
-			(ingredient_productions, productions)
-		]
-		for ingredient_values, total_values in combined_value_maps:
-			for ingredient, value in ingredient_values.items():
-				total_values[ingredient] = total_values.get(ingredient, 0) + value * net_scale_factor
-	#finally, combine machine speeds
-	for resource_name, speed in consumptions.items():
-		net_machine_speeds[resource_name] = net_machine_speeds.get(resource_name, 0) + speed
-	for recipe_name, speed in machine_speeds.items():
-		net_machine_speeds[recipe_name] = speed
 
 #remove any machine speeds if they're only used in a single recipe, we'll show the speeds directly as part of that recipe
 def prune_single_use_ingredients(desired_output, net_machine_speeds):
@@ -499,9 +489,9 @@ def prune_single_use_ingredients(desired_output, net_machine_speeds):
 	ingredient_recipe_use_counts = {}
 	for ingredient in net_machine_speeds:
 		recipe = RECIPES[ingredient]
-		for sub_ingredient in recipe[INGREDIENTS]:
+		for sub_ingredient in recipe.get(INGREDIENTS, EMPTY_DICT):
 			ingredient_recipe_use_counts[sub_ingredient] = ingredient_recipe_use_counts.get(sub_ingredient, 0) + 1
-		if recipe[ALTERNATE_OUTPUTS]:
+		if ALTERNATE_OUTPUTS in recipe:
 			pruned_net_machine_speeds[ingredient] = net_machine_speeds[ingredient]
 
 	for ingredient in desired_output:
@@ -539,7 +529,7 @@ def print_speed(ingredient, speed, indent, machine_stats, net_machine_speeds, pr
 	recipe_productivity = get_productivity_with_machine_stats(recipe, recipe_machine_stats, 1.0)
 	print_single_speed(ingredient, speed, indent, recipe, recipe_machine_stats)
 	if print_sub_ingredients or ingredient in INTEGRATED_INGREDIENTS:
-		for sub_ingredient, sub_count in recipe[INGREDIENTS].items():
+		for sub_ingredient, sub_count in recipe.get(INGREDIENTS, EMPTY_DICT).items():
 			print_speed(
 				sub_ingredient,
 				sub_count * speed / recipe_productivity / recipe[PRODUCT_COUNT],
