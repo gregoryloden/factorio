@@ -704,3 +704,5 @@ print_desired_output_and_machine_speeds(
 	},
 	MEGABASE)
 print_megabase_belt_splits(IRON, IRON_ORE, [Fraction(MEGABASE_BELT_SPEED * 5, 6)] * 6)
+print_desired_output_and_machine_speeds(
+	{ADVANCED_CIRCUIT: 45}, MEGABASE, extra_resources = [CABLE], extra_fluid_resources = [PETROLEUM])
