@@ -491,12 +491,15 @@ def prune_single_use_ingredients(desired_output, net_machine_speeds):
 		recipe = RECIPES[ingredient]
 		for sub_ingredient in recipe.get(INGREDIENTS, EMPTY_DICT):
 			ingredient_recipe_use_counts[sub_ingredient] = ingredient_recipe_use_counts.get(sub_ingredient, 0) + 1
+		#keep recipes with alternate outputs
 		if ALTERNATE_OUTPUTS in recipe:
 			pruned_net_machine_speeds[ingredient] = net_machine_speeds[ingredient]
 
+	#keep ingredients in our desired output
 	for ingredient in desired_output:
 		pruned_net_machine_speeds[ingredient] = net_machine_speeds[ingredient]
 		ingredient_recipe_use_counts.pop(ingredient, None)
+	#keep ingredients used in more than one recipe, and all resources
 	for ingredient, count in ingredient_recipe_use_counts.items():
 		if count > 1 or RECIPES[ingredient][MACHINE] in RESOURCE_MACHINES:
 			pruned_net_machine_speeds[ingredient] = net_machine_speeds[ingredient]
@@ -528,6 +531,7 @@ def print_speed(ingredient, speed, indent, machine_stats, net_machine_speeds, pr
 	recipe_machine_stats = machine_stats[recipe[MACHINE]]
 	recipe_productivity = get_productivity_with_machine_stats(recipe, recipe_machine_stats, 1.0)
 	print_single_speed(ingredient, speed, indent, recipe, recipe_machine_stats)
+	#print sub-ingredients if specified, and always print ingredients that are produced where they are used
 	if print_sub_ingredients or ingredient in INTEGRATED_INGREDIENTS:
 		for sub_ingredient, sub_count in recipe.get(INGREDIENTS, EMPTY_DICT).items():
 			print_speed(
@@ -567,7 +571,7 @@ def print_machine_speeds(desired_output, net_machine_speeds, production_mode):
 			intermediate_ingredients.append(ingredient_and_speed)
 
 	ordered_ingredients = resource_ingredients + intermediate_ingredients + output_ingredients
-	for (ingredient, speed) in ordered_ingredients:
+	for ingredient, speed in ordered_ingredients:
 		print_speed(ingredient, speed, "", machine_stats, net_machine_speeds, True)
 	print("")
 
