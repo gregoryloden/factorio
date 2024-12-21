@@ -427,7 +427,6 @@ def add_oil(net_machine_speeds, machine_stats):
 	machine_speeds = {}
 	productions = {}
 
-	advanced_oil_ingredients = RECIPES[ADVANCED_OIL][INGREDIENTS]
 	for oil_ingredient, recipe_sequence in oil_ingredients_and_recipe_sequences:
 		#skip if we don't need this ingredient
 		net_oil_ingredient_needed = \
@@ -439,19 +438,19 @@ def add_oil(net_machine_speeds, machine_stats):
 		#skip anything that is temporarily a resource
 		if RECIPES[oil_ingredient][MACHINE] == FLUID_RESOURCE:
 			continue
-		#start by producing the ingredients for one advanced oil craft
+		#start by producing the ingredients for one initial oil craft
 		ingredient_consumptions = {}
 		ingredient_machine_speeds = {}
-		ingredient_productions = advanced_oil_ingredients.copy()
+		ingredient_productions = RECIPES[recipe_sequence[0]][INGREDIENTS].copy()
 		#go through each recipe in the sequence to convert ingredients into our desired oil
 		for recipe_name in recipe_sequence:
 			recipe = RECIPES[recipe_name]
 			ingredients = recipe[INGREDIENTS]
-			#recipes only consume one oil ingredient, find it first
-			consumed_ingredient = \
-				next(ingredient for ingredient in ingredients if ingredient_productions.get(ingredient) != None)
-			scale_factor = ingredient_productions[consumed_ingredient] / ingredients[consumed_ingredient]
-			#update the productions
+			#each recipe consumes at least one of the ingredients already produced
+			produced_ingredient = \
+				next(ingredient for ingredient in ingredients if ingredient in ingredient_productions)
+			#scale consumption to match production and update the consumptions
+			scale_factor = ingredient_productions[produced_ingredient] / ingredients[produced_ingredient]
 			for ingredient, count in ingredients.items():
 				ingredient_consumptions[ingredient] = \
 					ingredient_consumptions.get(ingredient, 0) + count * scale_factor
@@ -464,7 +463,7 @@ def add_oil(net_machine_speeds, machine_stats):
 		#find out how much we need total
 		net_scale_factor = net_oil_ingredient_needed / ingredient_productions[oil_ingredient]
 		#add all the values to the totals
-		#this includes the fake production of the advanced oil ingredients but those will eventually get discarded
+		#this includes the fake production of the initial oil ingredients but those will eventually get discarded
 		combined_value_maps = [
 			(ingredient_consumptions, consumptions),
 			(ingredient_machine_speeds, machine_speeds),
