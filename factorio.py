@@ -417,7 +417,8 @@ def get_productivity(recipe, machine_stats, default_productivity):
 def get_machines_speeds(desired_output, production_mode):
 	net_machine_speeds = {}
 	remaining_machines_needed = []
-	byproduct_production = {}
+	produced_recipes = {}
+	produced_ingredients = {}
 	machine_stats = MACHINE_STATS_BY_PRODUCTION_MODE[production_mode]
 	def add_ingredient_production(ingredient, speed):
 		if ingredient in net_machine_speeds:
@@ -425,6 +426,10 @@ def get_machines_speeds(desired_output, production_mode):
 		else:
 			net_machine_speeds[ingredient] = speed
 			heapq.heappush(remaining_machines_needed, ItemProduction(ingredient))
+	def produce_recipe(recipe, speed):
+		produced_recipes[recipe] = produced_recipes.get(recipe, 0) + speed
+		for ingredient, count in RECIPES[recipe][ALTERNATE_OUTPUTS].items():
+			produced_ingredients[ingredient] = produced_ingredients.get(ingredient, 0) + speed * count
 
 	#setup our initial required products
 	for output, speed in desired_output.items():
@@ -436,7 +441,7 @@ def get_machines_speeds(desired_output, production_mode):
 	while len(remaining_machines_needed) > 0:
 		next_machine_needed = heapq.heappop(remaining_machines_needed)
 		ingredient = next_machine_needed.name
-		speed = net_machine_speeds[ingredient] - byproduct_production.get(ingredient, 0)
+		speed = net_machine_speeds[ingredient] - produced_ingredients.get(ingredient, 0)
 		recipe = RECIPES[ingredient]
 		sub_ingredients = recipe.get(INGREDIENTS, None)
 		recipe_ingredients = recipe.get(RECIPE_INGREDIENTS, None)
@@ -445,6 +450,11 @@ def get_machines_speeds(desired_output, production_mode):
 			sub_ingredient_base_speed = speed / get_productivity(recipe, machine_stats, 1.0) / recipe[PRODUCT_COUNT]
 			for sub_ingredient, count in sub_ingredients.items():
 				add_ingredient_production(sub_ingredient, count * sub_ingredient_base_speed)
+			#any recipe with alternate outputs needs to add its products as byproducts, if they haven't already been
+			#	accounted for
+			alternate_outputs = recipe.get(ALTERNATE_OUTPUTS, None)
+			if alternate_outputs:
+				produce_recipe(ingredient, speed - produced_recipes[ingredient])
 		#recipe sequence craft: calculate how much of each recipe we need to get our desired ingredient at its speed
 		elif recipe_ingredients:
 			#start by calculating the products we get per initial recipe craft
@@ -474,12 +484,9 @@ def get_machines_speeds(desired_output, production_mode):
 			#calculate how many of each recipe we need and update productions
 			scale_factor = speed / ingredient_productions[ingredient]
 			for recipe_name in recipe_ingredients:
-				add_ingredient_production(recipe_name, recipe_productions[recipe_name] * scale_factor)
-			#in addition, track any byproducts
-			del ingredient_productions[ingredient]
-			for byproduct, byproduct_speed in ingredient_productions.items():
-				byproduct_production[byproduct] = \
-					byproduct_production.get(byproduct, 0) + byproduct_speed * scale_factor
+				recipe_speed = recipe_productions[recipe_name] * scale_factor
+				add_ingredient_production(recipe_name, recipe_speed)
+				produce_recipe(recipe_name, recipe_speed)
 
 	return net_machine_speeds
 
