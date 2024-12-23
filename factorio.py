@@ -15,17 +15,21 @@ FURNACE = "furnace"
 ASSEMBLER = "assembler"
 CHEMICAL_PLANT = "chemical plant"
 FLUID_CHEMICAL_PLANT = "fluid chemical plant"
+ELECTROMECHANICAL_PLANT = "electromechanical plant"
+ELECTROMECHANICAL_PLANT_P5 = "electromechanical plant +5"
 RESOURCE_MACHINES = [RESOURCE, FLUID_RESOURCE]
 ACCEPTS_PRODUCTIVITY = "accepts productivity"
 ALTERNATE_OUTPUTS = "alternate outputs"
 RECIPE_INGREDIENTS = "recipe ingredients"
 MACHINE_CRAFT_RATE = "machine craft rate"
 MACHINE_PRODUCTIVITY = "machine productivity"
+BASE_PRODUCTIVITY = "base productivity"
 BELT_SPEED = "belt speed"
 MEGABASE_BELT_SPEED = 45
 PRODUCTION_MODE = "production mode"
 SPEEDRUN = "speedrun"
 MEGABASE = "megabase"
+SA_SPACE_PLATFORM = "SA space platform"
 BASE_INDENT = "        "
 MACHINE_STATS_BY_PRODUCTION_MODE = {
 	SPEEDRUN: {
@@ -44,6 +48,14 @@ MACHINE_STATS_BY_PRODUCTION_MODE = {
 		CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.3, BELT_SPEED: MEGABASE_BELT_SPEED},
 		FLUID_CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.3},
 	},
+	SA_SPACE_PLATFORM: {
+		RESOURCE: {},
+		FLUID_RESOURCE: {},
+		ELECTROMECHANICAL_PLANT: {BASE_PRODUCTIVITY: 1.5, MACHINE_PRODUCTIVITY: 2.0},
+		ELECTROMECHANICAL_PLANT_P5: {BASE_PRODUCTIVITY: 1.5, MACHINE_PRODUCTIVITY: 2.5},
+		CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.0},
+		FLUID_CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.0},
+	},
 }
 
 INGREDIENTS_LIST = []
@@ -57,6 +69,11 @@ class ItemProduction:
 	def __lt__(self, other):
 		return self.tier > other.tier
 
+def add_recipe(name, recipe):
+	RECIPES[name] = recipe
+	INGREDIENTS_LIST.append(name)
+	return name
+
 def add_item(
 		name,
 		time = 0,
@@ -64,7 +81,9 @@ def add_item(
 		machine = ASSEMBLER,
 		accepts_productivity = True,
 		ingredients = None,
-		alternate_outputs = None):
+		alternate_outputs = None,
+		original_name = None,
+		alt_ingredients = None):
 	recipe = {
 		TIME: time,
 		PRODUCT_COUNT: product_count,
@@ -75,9 +94,9 @@ def add_item(
 	for field, value in [(INGREDIENTS, ingredients), (ALTERNATE_OUTPUTS, alternate_outputs)]:
 		if value:
 			recipe[field] = value
-	RECIPES[name] = recipe
-	INGREDIENTS_LIST.append(name)
-	return name
+	if original_name and alt_ingredients is not None:
+		alt_ingredients[original_name] = name
+	return add_recipe(name, recipe)
 
 def set_recipe_ingredients(names, recipe_sequence):
 	tier = max(RECIPES[recipe_name][TIER] for recipe_name in recipe_sequence)
@@ -89,6 +108,19 @@ def set_recipe_ingredients(names, recipe_sequence):
 		while (name not in (output for output in RECIPES[recipe_ingredients[-1]][ALTERNATE_OUTPUTS])):
 			recipe_ingredients.pop()
 		recipe[RECIPE_INGREDIENTS] = recipe_ingredients
+
+def clone_recipe_with_alt_ingredients(name, original_name, alt_ingredients, machine = None):
+	recipe = RECIPES[original_name].copy()
+	if machine:
+		recipe[MACHINE] = machine
+	for ingredients_name in [INGREDIENTS, ALTERNATE_OUTPUTS]:
+		if ingredients_name in recipe:
+			recipe[ingredients_name] = \
+				{alt_ingredients.get(ingredient, ingredient): count
+					for ingredient, count in recipe[ingredients_name].items()}
+	recipe[TIER] = max(RECIPES[ingredient][TIER] for ingredient in recipe[INGREDIENTS]) + 1
+	alt_ingredients[original_name] = name
+	return add_recipe(name, recipe)
 
 IRON_ORE = add_item("Iron ore", machine = RESOURCE)
 COPPER_ORE = add_item("Copper ore", machine = RESOURCE)
@@ -399,6 +431,76 @@ SATELLITE_LAUNCH = add_item(
 		ROCKET: 1,
 		SATELLITE: 1,
 	})
+SPACE_ALT_INGREDIENTS = {}
+SPACE_IRON = add_item("Space Iron plate", machine = RESOURCE, original_name = IRON, alt_ingredients = SPACE_ALT_INGREDIENTS)
+SPACE_COPPER = add_item(
+	"Space Copper plate", machine = RESOURCE, original_name = COPPER, alt_ingredients = SPACE_ALT_INGREDIENTS)
+SPACE_PETROLEUM = add_item(
+	"Space Petroleum gas", machine = FLUID_RESOURCE, original_name = PETROLEUM, alt_ingredients = SPACE_ALT_INGREDIENTS)
+SPACE_LIGHT_OIL = add_item(
+	"Space Light oil", machine = FLUID_RESOURCE, original_name = LIGHT_OIL, alt_ingredients = SPACE_ALT_INGREDIENTS)
+SPACE_HEAVY_OIL = add_item(
+	"Space Heavy oil", machine = FLUID_RESOURCE, original_name = HEAVY_OIL, alt_ingredients = SPACE_ALT_INGREDIENTS)
+SPACE_SULFUR = add_item("Space Sulfur", machine = RESOURCE, original_name = SULFUR, alt_ingredients = SPACE_ALT_INGREDIENTS)
+SPACE_ICE = add_item("Space Ice", machine = RESOURCE)
+SPACE_CALCITE = add_item("Space Calcite", machine = RESOURCE)
+SPACE_CARBON = add_item("Space Carbon", machine = RESOURCE)
+SPACE_STEAM = add_item("Space Steam", machine = FLUID_RESOURCE)
+SPACE_WATER = add_item(
+	"Space Water", time = 1, product_count = 20, machine = FLUID_CHEMICAL_PLANT,
+	ingredients = {
+		SPACE_ICE: 1,
+	},
+	original_name = WATER, alt_ingredients = SPACE_ALT_INGREDIENTS)
+SPACE_COAL = add_item(
+	"Space Coal", time = 2, machine = CHEMICAL_PLANT,
+	ingredients = {
+		SPACE_SULFUR: 1,
+		SPACE_CARBON: 5,
+		SPACE_WATER: 10,
+	},
+	original_name = COAL, alt_ingredients = SPACE_ALT_INGREDIENTS)
+SPACE_COAL_LIQUEFACTION = add_item(
+	"Space Coal liquefaction", time = 5, machine = FLUID_CHEMICAL_PLANT,
+	ingredients = {
+		SPACE_COAL: 10,
+		SPACE_STEAM: 50,
+	},
+	alternate_outputs = {
+		SPACE_HEAVY_OIL: 65,
+		SPACE_LIGHT_OIL: 20,
+		SPACE_PETROLEUM: 10,
+	})
+SPACE_HEAVY_OIL_CRACKING = clone_recipe_with_alt_ingredients(
+	"Space Heavy oil cracking", HEAVY_OIL_CRACKING, SPACE_ALT_INGREDIENTS)
+SPACE_LIGHT_OIL_CRACKING = clone_recipe_with_alt_ingredients(
+	"Space Light oil cracking", LIGHT_OIL_CRACKING, SPACE_ALT_INGREDIENTS)
+set_recipe_ingredients(
+	[SPACE_PETROLEUM, SPACE_LIGHT_OIL, SPACE_HEAVY_OIL],
+	[SPACE_COAL_LIQUEFACTION, SPACE_HEAVY_OIL_CRACKING, SPACE_LIGHT_OIL_CRACKING])
+SPACE_CABLE = clone_recipe_with_alt_ingredients(
+	"Space Copper cable", CABLE, SPACE_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT)
+SPACE_CIRCUIT = clone_recipe_with_alt_ingredients(
+	"Space Electronic circuit", CIRCUIT, SPACE_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT)
+SPACE_PLASTIC = clone_recipe_with_alt_ingredients("Space Plastic bar", PLASTIC, SPACE_ALT_INGREDIENTS)
+SPACE_ADVANCED_CIRCUIT = clone_recipe_with_alt_ingredients(
+	"Space Advanced circuit", ADVANCED_CIRCUIT, SPACE_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT)
+SPACE_SULFURIC_ACID = clone_recipe_with_alt_ingredients("Space Sulfuric acid", SULFURIC_ACID, SPACE_ALT_INGREDIENTS)
+SPACE_PROCESSING = clone_recipe_with_alt_ingredients(
+	"Space Processing unit", PROCESSING, SPACE_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT_P5)
+SPACE_MODULE_1 = add_item(
+	"Space Module 1", time = 15, machine = ELECTROMECHANICAL_PLANT, accepts_productivity = False,
+	ingredients = {
+		SPACE_ADVANCED_CIRCUIT: 5,
+		SPACE_CIRCUIT: 5,
+	})
+SPACE_MODULE_2 = add_item(
+	"Space Module 2", time = 30, machine = ELECTROMECHANICAL_PLANT, accepts_productivity = False,
+	ingredients = {
+		SPACE_ADVANCED_CIRCUIT: 5,
+		SPACE_PROCESSING: 5,
+		SPACE_MODULE_1: 4,
+	})
 
 INTEGRATED_INGREDIENTS = [GEAR, CABLE]
 
@@ -408,7 +510,7 @@ def get_productivity_with_machine_stats(recipe, recipe_machine_stats, default_pr
 	if not productivity:
 		return default_productivity
 	if not recipe[ACCEPTS_PRODUCTIVITY]:
-		return 1.0
+		return recipe_machine_stats.get(BASE_PRODUCTIVITY, 1.0)
 	return productivity
 
 def get_productivity(recipe, machine_stats, default_productivity):
@@ -725,3 +827,5 @@ print_desired_output_and_machine_speeds(
 print_megabase_belt_splits(IRON, IRON_ORE, [Fraction(MEGABASE_BELT_SPEED * 5, 6)] * 6)
 print_desired_output_and_machine_speeds(
 	{ADVANCED_CIRCUIT: 45}, MEGABASE, extra_resources = [CABLE], extra_fluid_resources = [PETROLEUM])
+print_desired_output_and_machine_speeds(
+	{SPACE_PROCESSING: 0.125, SPACE_ADVANCED_CIRCUIT: 0.125, SPACE_MODULE_2: 0.1}, SA_SPACE_PLATFORM)
