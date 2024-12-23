@@ -594,15 +594,17 @@ def merge_machine_speeds(all_machine_speeds):
 
 def print_desired_output_and_machine_speeds(desired_outputs, production_mode, extra_resources = [], extra_fluid_resources = []):
 	old_recipes = {}
-	for extra_resource in extra_resources:
-		old_recipes[extra_resource] = RECIPES.pop(extra_resource)
-		add_item(extra_resource, machine = RESOURCE)
-		INGREDIENTS_LIST.pop()
-	for extra_fluid_resource in extra_fluid_resources:
-		old_recipes[extra_fluid_resource] = RECIPES.pop(extra_fluid_resource)
-		add_item(extra_fluid_resource, machine = FLUID_RESOURCE)
-		INGREDIENTS_LIST.pop()
 
+	#apply recipe adjustments as needed
+	def add_extra_resources(resource_names, machine):
+		for extra_resource in resource_names:
+			old_recipes[extra_resource] = RECIPES[extra_resource]
+			add_item(extra_resource, machine = machine)
+			INGREDIENTS_LIST.pop()
+	add_extra_resources(extra_resources, RESOURCE)
+	add_extra_resources(extra_fluid_resources, FLUID_RESOURCE)
+
+	#print desired output and machine speeds for one or more sets of desired outputs
 	if not isinstance(desired_outputs, list):
 		print_desired_output(desired_outputs, production_mode)
 		print_machine_speeds(
@@ -615,6 +617,8 @@ def print_desired_output_and_machine_speeds(desired_outputs, production_mode, ex
 			all_machine_speeds.append(get_machines_speeds(desired_output, production_mode))
 			all_desired_output_ingredients.extend(list(desired_output.keys()))
 		print_machine_speeds(all_desired_output_ingredients, merge_machine_speeds(all_machine_speeds), production_mode)
+
+	#restore recipes to what they were before
 	for old_name, old_recipe in old_recipes.items():
 		RECIPES[old_name] = old_recipe
 
