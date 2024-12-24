@@ -17,6 +17,7 @@ CHEMICAL_PLANT = "chemical plant"
 FLUID_CHEMICAL_PLANT = "fluid chemical plant"
 ELECTROMECHANICAL_PLANT = "electromechanical plant"
 ELECTROMECHANICAL_PLANT_P5 = "electromechanical plant +5"
+BASIC_MACHINE = "basic machine"
 RESOURCE_MACHINES = [RESOURCE, FLUID_RESOURCE]
 ACCEPTS_PRODUCTIVITY = "accepts productivity"
 ALTERNATE_OUTPUTS = "alternate outputs"
@@ -53,8 +54,9 @@ MACHINE_STATS_BY_PRODUCTION_MODE = {
 		FLUID_RESOURCE: {},
 		ELECTROMECHANICAL_PLANT: {BASE_PRODUCTIVITY: 1.5, MACHINE_PRODUCTIVITY: 2.0},
 		ELECTROMECHANICAL_PLANT_P5: {BASE_PRODUCTIVITY: 1.5, MACHINE_PRODUCTIVITY: 2.5},
-		CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.0},
-		FLUID_CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.0},
+		CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.3},
+		FLUID_CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.3},
+		BASIC_MACHINE: {MACHINE_PRODUCTIVITY: 1.0},
 	},
 }
 
@@ -447,13 +449,13 @@ SPACE_CALCITE = add_item("Space Calcite", machine = RESOURCE)
 SPACE_CARBON = add_item("Space Carbon", machine = RESOURCE)
 SPACE_STEAM = add_item("Space Steam", machine = FLUID_RESOURCE)
 SPACE_WATER = add_item(
-	"Space Water", time = 1, product_count = 20, machine = FLUID_CHEMICAL_PLANT,
+	"Space Water", time = 1, product_count = 20, machine = BASIC_MACHINE,
 	ingredients = {
 		SPACE_ICE: 1,
 	},
 	original_name = WATER, alt_ingredients = SPACE_ALT_INGREDIENTS)
 SPACE_COAL = add_item(
-	"Space Coal", time = 2, machine = CHEMICAL_PLANT,
+	"Space Coal", time = 2, machine = BASIC_MACHINE,
 	ingredients = {
 		SPACE_SULFUR: 1,
 		SPACE_CARBON: 5,
