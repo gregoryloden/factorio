@@ -484,10 +484,12 @@ SPACE_CABLE = clone_recipe_with_alt_ingredients(
 	"Space Copper cable", CABLE, SPACE_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT)
 SPACE_CIRCUIT = clone_recipe_with_alt_ingredients(
 	"Space Electronic circuit", CIRCUIT, SPACE_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT)
-SPACE_PLASTIC = clone_recipe_with_alt_ingredients("Space Plastic bar", PLASTIC, SPACE_ALT_INGREDIENTS)
+SPACE_PLASTIC = clone_recipe_with_alt_ingredients(
+	"Space Plastic bar", PLASTIC, SPACE_ALT_INGREDIENTS, machine = PRODUCTIVE_CHEMICAL_PLANT)
 SPACE_ADVANCED_CIRCUIT = clone_recipe_with_alt_ingredients(
 	"Space Advanced circuit", ADVANCED_CIRCUIT, SPACE_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT)
-SPACE_SULFURIC_ACID = clone_recipe_with_alt_ingredients("Space Sulfuric acid", SULFURIC_ACID, SPACE_ALT_INGREDIENTS)
+SPACE_SULFURIC_ACID = clone_recipe_with_alt_ingredients(
+	"Space Sulfuric acid", SULFURIC_ACID, SPACE_ALT_INGREDIENTS)
 SPACE_PROCESSING = clone_recipe_with_alt_ingredients(
 	"Space Processing unit", PROCESSING, SPACE_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT_P5)
 SPACE_MODULE_1 = add_item(
