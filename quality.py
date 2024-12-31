@@ -15,8 +15,12 @@ MACHINE_SPECS = {
 	"electromagnetic plant": {"slots": 5, "base productivity": 0.5},
 	"assembling machine": {"slots": 4, "base productivity": 0},
 }
+SINGLE_LOOP_MACHINE_SPECS = {
+	"recycler": {"slots": 4, "return chance": 0.25},
+	"crusher": {"slots": 2, "return chance": 0.8},
+}
 
-def math_test(p, q, lp, rq, sp, sq):
+def math_test(p, q, lp, rq, sp, sq, rc):
 	def add_and_distribute_quality(amounts, initial_amount, level, dq):
 		quality_amount = initial_amount * dq
 		amounts[level] += initial_amount - quality_amount
@@ -28,13 +32,13 @@ def math_test(p, q, lp, rq, sp, sq):
 	products = [0] * 5
 	add_and_distribute_quality(products, 1 + sp, 0, sq)
 	#the ratio of same-level products after recycle and re-craft is the same across all levels
-	scale_factor = 1 / (1 - 0.25 * (1 - rq) * (1 + p) * (1 - q))
+	scale_factor = 1 / (1 - rc * (1 - rq) * (1 + p) * (1 - q))
 	for level in range(4):
 		base_amount = products[level]
 		products[level] = 0
 		#recycle
 		ingredients = [0] * 5
-		add_and_distribute_quality(ingredients, base_amount * 0.25, level, rq)
+		add_and_distribute_quality(ingredients, base_amount * rc, level, rq)
 		#re-craft
 		new_products = [0] * 5
 		new_products[4] = ingredients[4] * (1 + lp)
@@ -99,7 +103,7 @@ def simulate_test(n, m, base_p, qn, p, q, base_quality):
 	total_products += legendary
 	print(f"\t{qn}x quality, {pn}x productivity"
 		+ f": {n} crafts, {total_products} products, {legendary} legendary: {math.ceil(n/legendary)} crafts/legendary"
-		+ f" (math: {math_test(p, q, lp, rq, sp, sq):3.2f})")
+		+ f" (math: {math_test(p, q, lp, rq, sp, sq, 0.25):3.2f})")
 
 def test_configuration(n, machine=None, pmodules=None, qmodules=None, base_quality=True):
 	ms = MACHINE_SPECS[machine]
@@ -112,6 +116,12 @@ def test_configuration(n, machine=None, pmodules=None, qmodules=None, base_quali
 	for i in range(m + 1):
 		simulate_test(n, m, base_p, i, p, q, base_quality)
 
+def single_loop_test(machine=None, qmodules=None):
+	slms = SINGLE_LOOP_MACHINE_SPECS[machine]
+	q = QUALITY[qmodules] * slms["slots"]
+	rc = slms["return chance"]
+	print(f"\n{machine} with +{q:.4f} {qmodules} quality modules: {math_test(0, 0, 0, q, 0, 0, rc)} crafts/legendary")
+
 print("\n")
 test_configuration(100_000, machine="electromagnetic plant", pmodules="normal", qmodules="rare")
 test_configuration(100_000, machine="electromagnetic plant", pmodules="normal", qmodules="epic")
@@ -120,3 +130,7 @@ test_configuration(100_000, machine="electromagnetic plant", pmodules="legendary
 test_configuration(100_000, machine="assembling machine", pmodules="normal", qmodules="legendary")
 test_configuration(100_000, machine="assembling machine", pmodules="legendary", qmodules="legendary")
 test_configuration(100_000, machine="electromagnetic plant", pmodules="normal", qmodules="epic", base_quality=False)
+single_loop_test(machine="recycler", qmodules="epic")
+single_loop_test(machine="recycler", qmodules="legendary")
+single_loop_test(machine="crusher", qmodules="epic")
+single_loop_test(machine="crusher", qmodules="legendary")
