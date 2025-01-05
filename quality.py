@@ -101,9 +101,12 @@ def simulate_test(n, m, base_p, qn, p, q, base_quality):
 			bonus[base_level] -= bonus_products
 	legendary = products[4] + int(bonus[4])
 	total_products += legendary
+	inputs_per_legendary = math.ceil(n/legendary)
+	products_per_legendary = math.ceil(total_products/legendary)
+	math_result = f"({math_test(p, q, lp, rq, sp, sq, 0.25):3.2f})"
 	print(f"\t{qn}x quality, {pn}x productivity"
-		+ f": {n} crafts, {total_products} products, {legendary} legendary: {math.ceil(n/legendary)} crafts/legendary"
-		+ f" (math: {math_test(p, q, lp, rq, sp, sq, 0.25):3.2f})")
+		+ f": {n} | {total_products:<8} | {legendary:<9} | {inputs_per_legendary:<3} | {products_per_legendary:<3}"
+		+ f" | {math_result}")
 
 def test_configuration(n, machine=None, pmodules=None, qmodules=None, base_quality=True):
 	ms = MACHINE_SPECS[machine]
@@ -112,7 +115,8 @@ def test_configuration(n, machine=None, pmodules=None, qmodules=None, base_quali
 	m = ms["slots"]
 	base_p = ms["base productivity"]
 	print(f"\nTesting {m} module slots, +{base_p} base productivity, {"with" if base_quality else "without"} base quality"
-		+ f"\n    +{p:.4f} {pmodules} productivity modules\n    +{q:.4f} {qmodules} quality modules")
+		+ f"\n    +{p:.4f} {pmodules} productivity modules\n    +{q:.4f} {qmodules} quality modules"
+		+ f"\n                                     inputs | products | legendary | i/l | p/l | i/l (math)")
 	for i in range(m + 1):
 		simulate_test(n, m, base_p, i, p, q, base_quality)
 
