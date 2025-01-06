@@ -31,25 +31,30 @@ def math_test(p, q, lp, rq, sp, sq, rc):
 			quality_amount *= 0.1
 			amounts[i] -= quality_amount
 			amounts[i + 1] += quality_amount
+	#calculate starting products from 1 set of inputs
 	products = [0] * LEVELS
 	add_and_distribute_quality(products, 1 + sp, 0, sq)
 	#the ratio of same-level products after recycle and re-craft is the same across all levels
 	scale_factor = 1 / (1 - rc * (1 - rq) * (1 + p) * (1 - q))
+	ingredients = [0] * LEVELS
 	for level in range(MAX_LEVEL):
 		base_amount = products[level]
 		products[level] = 0
 		#recycle
-		ingredients = [0] * LEVELS
-		add_and_distribute_quality(ingredients, base_amount * rc, level, rq)
+		new_ingredients = [0] * LEVELS
+		add_and_distribute_quality(new_ingredients, base_amount * rc, level, rq)
 		#re-craft
 		new_products = [0] * LEVELS
-		new_products[MAX_LEVEL] = ingredients[MAX_LEVEL] * (1 + lp)
+		new_products[MAX_LEVEL] = new_ingredients[MAX_LEVEL] * (1 + lp)
 		for craft_level in range(level, MAX_LEVEL):
-			add_and_distribute_quality(new_products, ingredients[craft_level] * (1 + p), craft_level, q)
-		#add products to the total, scaled based on how many were consumed by recycling and re-crafting
-		for add_level in range(level + 1, LEVELS):
+			add_and_distribute_quality(new_products, new_ingredients[craft_level] * (1 + p), craft_level, q)
+		#add products and consumed ingredients to the totals, scaled based on how many were consumed by recycling and
+		#	re-crafting
+		new_products[level] = 0
+		for add_level in range(level, LEVELS):
 			products[add_level] += new_products[add_level] * scale_factor
-	return 1 / products[MAX_LEVEL]
+			ingredients[add_level] += new_ingredients[add_level] * scale_factor
+	return {"inputs/legendary": 1 / products[MAX_LEVEL], "re-craft rates": ingredients}
 
 def simulate_test(n, m, base_p, qn, p, q, base_quality):
 	def level_apply_quality(level, aq):
@@ -105,10 +110,13 @@ def simulate_test(n, m, base_p, qn, p, q, base_quality):
 	total_products += legendary
 	inputs_per_legendary = math.ceil(n/legendary)
 	products_per_legendary = math.ceil(total_products/legendary)
-	math_result = f"({math_test(p, q, lp, rq, sp, sq, 0.25):3.2f})"
-	print(f"\t{qn}x quality, {pn}x productivity"
-		+ f": {n} | {total_products:<8} | {legendary:<9} | {inputs_per_legendary:<3} | {products_per_legendary:<3}"
-		+ f" | {math_result}")
+	math_result = math_test(p, q, lp, rq, sp, sq, 0.25)
+	math_inputs_per_legendary = math_result["inputs/legendary"]
+	re_craft_rates = [f"{rate * 100:.2f}%" for rate in math_result["re-craft rates"]]
+	print(f"\t{qn}x qu, {pn}x pr"
+		+ f": {n} | {total_products:8} | {legendary:9}"
+		+ f" | {inputs_per_legendary:3} ({math_inputs_per_legendary:>6.2f}) |{products_per_legendary:4}"
+		+ f" | [{", ".join(re_craft_rates)}]")
 
 def test_configuration(n, machine=None, pmodules=None, qmodules=None, base_quality=True):
 	ms = MACHINE_SPECS[machine]
@@ -118,7 +126,7 @@ def test_configuration(n, machine=None, pmodules=None, qmodules=None, base_quali
 	base_p = ms["base productivity"]
 	print(f"\nTesting {m} module slots, +{base_p} base productivity, {"with" if base_quality else "without"} base quality"
 		+ f"\n    +{p:.4f} {pmodules} productivity modules\n    +{q:.4f} {qmodules} quality modules"
-		+ f"\n                                     inputs | products | legendary | i/l | p/l | i/l (math)")
+		+ f"\n                      inputs | products | legendary | i/l  (math)  | p/l | re-craft rates")
 	for i in range(m + 1):
 		simulate_test(n, m, base_p, i, p, q, base_quality)
 
@@ -126,7 +134,8 @@ def single_loop_test(machine=None, qmodules=None):
 	slms = SINGLE_LOOP_MACHINE_SPECS[machine]
 	q = QUALITY[qmodules] * slms["slots"]
 	rc = slms["return chance"]
-	print(f"\n{machine} with +{q:.4f} {qmodules} quality modules: {math_test(0, 0, 0, q, 0, 0, rc)} crafts/legendary")
+	math_inputs_per_legendary = math_test(0, 0, 0, q, 0, 0, rc)["inputs/legendary"]
+	print(f"\n{machine} with +{q:.4f} {qmodules} quality modules: {math_inputs_per_legendary} inputs/legendary")
 
 print("\n")
 test_configuration(100_000, machine="electromagnetic plant", pmodules="normal", qmodules="rare")
