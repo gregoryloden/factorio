@@ -1,6 +1,8 @@
 import random
 import math
 
+LEVELS = 5
+MAX_LEVEL = LEVELS - 1
 PRODUCTIVITY = {
 	"normal": 0.1,
 	"legendary": 0.25,
@@ -25,34 +27,34 @@ def math_test(p, q, lp, rq, sp, sq, rc):
 		quality_amount = initial_amount * dq
 		amounts[level] += initial_amount - quality_amount
 		amounts[level + 1] += quality_amount
-		for i in range(level + 1, 4):
+		for i in range(level + 1, MAX_LEVEL):
 			quality_amount *= 0.1
 			amounts[i] -= quality_amount
 			amounts[i + 1] += quality_amount
-	products = [0] * 5
+	products = [0] * LEVELS
 	add_and_distribute_quality(products, 1 + sp, 0, sq)
 	#the ratio of same-level products after recycle and re-craft is the same across all levels
 	scale_factor = 1 / (1 - rc * (1 - rq) * (1 + p) * (1 - q))
-	for level in range(4):
+	for level in range(MAX_LEVEL):
 		base_amount = products[level]
 		products[level] = 0
 		#recycle
-		ingredients = [0] * 5
+		ingredients = [0] * LEVELS
 		add_and_distribute_quality(ingredients, base_amount * rc, level, rq)
 		#re-craft
-		new_products = [0] * 5
-		new_products[4] = ingredients[4] * (1 + lp)
-		for craft_level in range(level, 4):
+		new_products = [0] * LEVELS
+		new_products[MAX_LEVEL] = ingredients[MAX_LEVEL] * (1 + lp)
+		for craft_level in range(level, MAX_LEVEL):
 			add_and_distribute_quality(new_products, ingredients[craft_level] * (1 + p), craft_level, q)
 		#add products to the total, scaled based on how many were consumed by recycling and re-crafting
-		for add_level in range(level + 1, 5):
+		for add_level in range(level + 1, LEVELS):
 			products[add_level] += new_products[add_level] * scale_factor
-	return 1 / products[4]
+	return 1 / products[MAX_LEVEL]
 
 def simulate_test(n, m, base_p, qn, p, q, base_quality):
 	def level_apply_quality(level, aq):
 		val = random.random()
-		while val < aq and level < 4:
+		while val < aq and level < MAX_LEVEL:
 			level += 1
 			val *= 10
 		return level
@@ -63,8 +65,8 @@ def simulate_test(n, m, base_p, qn, p, q, base_quality):
 	q = q * qn
 	sp = (p if base_quality else lp)
 	sq = (q if base_quality else 0)
-	products = [0] * 5
-	bonus = [0] * 5
+	products = [0] * LEVELS
+	bonus = [0] * LEVELS
 	total_products = 0
 	#craft initial products we have
 	bonus[0] = n * sp
@@ -79,7 +81,7 @@ def simulate_test(n, m, base_p, qn, p, q, base_quality):
 	for i in range(total_initial_products):
 		products[level_apply_quality(0, sq)] += 1
 	#recycle and re-craft each level of products until there are none left at that level
-	for base_level in range(4):
+	for base_level in range(MAX_LEVEL):
 		while products[base_level] > 0:
 			ln = products[base_level]
 			products[base_level] = 0
@@ -90,16 +92,16 @@ def simulate_test(n, m, base_p, qn, p, q, base_quality):
 					continue
 				level = level_apply_quality(base_level, rq)
 				#re-craft: pure productivity if legendary, otherwise quality + productivity
-				if level == 4:
-					bonus[4] += lp
-					products[4] += 1
+				if level == MAX_LEVEL:
+					bonus[MAX_LEVEL] += lp
+					products[MAX_LEVEL] += 1
 				else:
 					bonus[level] += p
 					products[level_apply_quality(level, q)] += 1
 			bonus_products = int(bonus[base_level])
 			products[base_level] += bonus_products
 			bonus[base_level] -= bonus_products
-	legendary = products[4] + int(bonus[4])
+	legendary = products[MAX_LEVEL] + int(bonus[MAX_LEVEL])
 	total_products += legendary
 	inputs_per_legendary = math.ceil(n/legendary)
 	products_per_legendary = math.ceil(total_products/legendary)
