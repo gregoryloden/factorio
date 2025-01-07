@@ -16,6 +16,7 @@ QUALITY = {
 MACHINE_SPECS = {
 	"electromagnetic plant": {"slots": 5, "base productivity": 0.5},
 	"assembling machine": {"slots": 4, "base productivity": 0},
+	"cryochamber": {"slots": 8, "base productivity": 0},
 }
 SINGLE_LOOP_MACHINE_SPECS = {
 	"recycler": {"slots": 4, "return chance": 0.25},
@@ -140,6 +141,7 @@ def single_loop_test(machine=None, qmodules=None):
 print("\n")
 test_configuration(100_000, machine="electromagnetic plant", pmodules="legendary", qmodules="legendary")
 test_configuration(100_000, machine="assembling machine", pmodules="legendary", qmodules="legendary")
+test_configuration(100_000, machine="cryochamber", pmodules="legendary", qmodules="legendary")
 test_configuration(100_000, machine="electromagnetic plant", pmodules="legendary", qmodules="legendary", base_quality=False)
 single_loop_test(machine="recycler", qmodules="legendary")
 single_loop_test(machine="crusher", qmodules="legendary")
