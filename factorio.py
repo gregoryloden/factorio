@@ -17,6 +17,7 @@ CHEMICAL_PLANT = "chemical plant"
 FLUID_CHEMICAL_PLANT = "fluid chemical plant"
 ELECTROMECHANICAL_PLANT = "electromechanical plant"
 ELECTROMECHANICAL_PLANT_P5 = "electromechanical plant +5"
+CRYOGENIC_PLANT = "cryogenic plant"
 BASIC_MACHINE = "basic machine"
 RESOURCE_MACHINES = [RESOURCE, FLUID_RESOURCE]
 ACCEPTS_PRODUCTIVITY = "accepts productivity"
@@ -68,6 +69,7 @@ MACHINE_STATS_BY_PRODUCTION_MODE = {
 		FLUID_CHEMICAL_PLANT: {MACHINE_PRODUCTIVITY: 1.75},
 		ELECTROMECHANICAL_PLANT: {BASE_PRODUCTIVITY: 1.5, MACHINE_PRODUCTIVITY: 2.75},
 		ELECTROMECHANICAL_PLANT_P5: {BASE_PRODUCTIVITY: 1.5, MACHINE_PRODUCTIVITY: 3.25},
+		CRYOGENIC_PLANT: {MACHINE_PRODUCTIVITY: 3.0},
 		BASIC_MACHINE: {MACHINE_PRODUCTIVITY: 1.0},
 	},
 }
@@ -518,6 +520,12 @@ SPACE_MODULE_2 = add_item(
 		SPACE_MODULE_1: 4,
 	})
 SA_ALT_INGREDIENTS = {}
+SA_ICE = add_item("SA Ice", machine = RESOURCE)
+SA_AMMONIA = add_item("SA Ammonia", machine = RESOURCE)
+SA_LITHIUM_BRINE = add_item("SA Lithium brine", machine = RESOURCE)
+SA_FLUORINE = add_item("SA Fluorine", machine = RESOURCE)
+SA_SOLID_FUEL = add_item("SA Solid fuel", machine = RESOURCE)
+SA_HOLMIUM = add_item("SA Holmium plate", machine = RESOURCE)
 SA_CABLE = clone_recipe_with_alt_ingredients(
 	"SA Copper cable", CABLE, SA_ALT_INGREDIENTS, machine = ELECTROMECHANICAL_PLANT)
 SA_CIRCUIT = clone_recipe_with_alt_ingredients(
@@ -545,6 +553,33 @@ SA_MODULE_3 = add_item(
 		SA_ADVANCED_CIRCUIT: 5,
 		SA_PROCESSING: 5,
 		SA_MODULE_2: 4,
+	})
+SA_LITHIUM = add_item(
+	"SA Lithium", time = 20, product_count = 5, machine = CRYOGENIC_PLANT,
+	ingredients = {
+		SA_HOLMIUM: 1,
+		SA_LITHIUM_BRINE: 50,
+		SA_AMMONIA: 50,
+	})
+SA_FLUOROKETONE = add_item(
+	"SA Fluoroketone", time = 10, product_count = 50, machine = CRYOGENIC_PLANT,
+	ingredients = {
+		SA_SOLID_FUEL: 1,
+		SA_LITHIUM: 1,
+		SA_FLUORINE: 50,
+		SA_AMMONIA: 50,
+	})
+SA_LITHIUM_PLATE = add_item(
+	"SA Lithium plate", time = 6.4, machine = FURNACE,
+	ingredients = {
+		SA_LITHIUM: 1,
+	})
+SA_CRYO_SCIENCE = add_item(
+	"SA Cryogenic science pack", time = 20, machine = CRYOGENIC_PLANT,
+	ingredients = {
+		SA_ICE: 3,
+		SA_LITHIUM_PLATE: 1,
+		SA_FLUOROKETONE: 3,
 	})
 
 INTEGRATED_INGREDIENTS = [GEAR, CABLE]
@@ -875,3 +910,4 @@ print_desired_output_and_machine_speeds(
 print_desired_output_and_machine_speeds(
 	{SPACE_PROCESSING: 0.125, SPACE_ADVANCED_CIRCUIT: 0.125, SPACE_MODULE_2: 0.1}, SA_SPACE_PLATFORM)
 print_desired_output_and_machine_speeds({SA_MODULE_3: 0.5}, SA_MEGABASE)
+print_desired_output_and_machine_speeds({SA_CRYO_SCIENCE: 600}, SA_MEGABASE)
